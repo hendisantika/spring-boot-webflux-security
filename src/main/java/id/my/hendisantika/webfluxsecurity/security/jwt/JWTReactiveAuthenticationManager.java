@@ -2,6 +2,7 @@ package id.my.hendisantika.webfluxsecurity.security.jwt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -47,4 +48,9 @@ public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationM
                 .switchIfEmpty(Mono.defer(this::raiseBadCredentials))
                 .map(u -> new UsernamePasswordAuthenticationToken(authentication.getPrincipal(), authentication.getCredentials(), u.getAuthorities()));
     }
+
+    private <T> Mono<T> raiseBadCredentials() {
+        return Mono.error(new BadCredentialsException("Invalid Credentials"));
+    }
+
 }
