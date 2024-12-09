@@ -6,7 +6,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -53,4 +55,16 @@ public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationM
         return Mono.error(new BadCredentialsException("Invalid Credentials"));
     }
 
+    private Mono<UserDetails> authenticateToken(final UsernamePasswordAuthenticationToken authenticationToken) {
+        String username = authenticationToken.getName();
+
+        logger.info("checking authentication for user " + username);
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            logger.info("authenticated user " + username + ", setting security context");
+            return this.userDetailsService.findByUsername(username);
+        }
+
+        return null;
+    }
 }
