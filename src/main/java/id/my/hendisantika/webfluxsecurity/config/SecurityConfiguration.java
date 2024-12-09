@@ -3,6 +3,8 @@ package id.my.hendisantika.webfluxsecurity.config;
 import id.my.hendisantika.webfluxsecurity.entity.AuthoritiesConstants;
 import id.my.hendisantika.webfluxsecurity.exception.UnauthorizedAuthenticationEntryPoint;
 import id.my.hendisantika.webfluxsecurity.security.ReactiveUserDetailsServiceImpl;
+import id.my.hendisantika.webfluxsecurity.security.TokenAuthenticationConverter;
+import id.my.hendisantika.webfluxsecurity.security.jwt.JWTHeadersExchangeMatcher;
 import id.my.hendisantika.webfluxsecurity.security.jwt.TokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +13,8 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 
 /**
  * Created by IntelliJ IDEA.
@@ -70,5 +74,14 @@ public class SecurityConfiguration {
                 .anyExchange().authenticated();
 
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationWebFilter webFilter() {
+        AuthenticationWebFilter authenticationWebFilter = new AuthenticationWebFilter(repositoryReactiveAuthenticationManager());
+        authenticationWebFilter.setAuthenticationConverter(new TokenAuthenticationConverter(tokenProvider));
+        authenticationWebFilter.setRequiresAuthenticationMatcher(new JWTHeadersExchangeMatcher());
+        authenticationWebFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
+        return authenticationWebFilter;
     }
 }
