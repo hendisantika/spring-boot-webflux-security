@@ -1,10 +1,16 @@
 package id.my.hendisantika.webfluxsecurity.config;
 
+import id.my.hendisantika.webfluxsecurity.entity.AuthoritiesConstants;
+import id.my.hendisantika.webfluxsecurity.exception.UnauthorizedAuthenticationEntryPoint;
 import id.my.hendisantika.webfluxsecurity.security.ReactiveUserDetailsServiceImpl;
 import id.my.hendisantika.webfluxsecurity.security.jwt.TokenProvider;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.web.server.SecurityWebFilterChain;
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,5 +39,36 @@ public class SecurityConfiguration {
                                  TokenProvider tokenProvider) {
         this.reactiveUserDetailsService = reactiveUserDetailsService;
         this.tokenProvider = tokenProvider;
+    }
+
+    @Bean
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, UnauthorizedAuthenticationEntryPoint entryPoint) {
+        http.httpBasic().disable()
+                .formLogin().disable()
+                .csrf().disable()
+                .logout().disable();
+
+        http
+                .exceptionHandling()
+                .authenticationEntryPoint(entryPoint)
+                .and()
+                .authorizeExchange()
+                .matchers(EndpointRequest.to("health", "info"))
+                .permitAll()
+                .and()
+                .authorizeExchange()
+                .pathMatchers(HttpMethod.OPTIONS)
+                .permitAll()
+                .and()
+                .authorizeExchange()
+                .matchers(EndpointRequest.toAnyEndpoint())
+                .hasAuthority(AuthoritiesConstants.ADMIN)
+                .and()
+                .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
+                .authorizeExchange()
+                .pathMatchers(AUTH_WHITELIST).permitAll()
+                .anyExchange().authenticated();
+
+        return http.build();
     }
 }
