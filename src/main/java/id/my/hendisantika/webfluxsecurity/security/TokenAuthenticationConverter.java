@@ -1,9 +1,11 @@
 package id.my.hendisantika.webfluxsecurity.security;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -26,5 +28,17 @@ public class TokenAuthenticationConverter implements Function<ServerWebExchange,
 
     public TokenAuthenticationConverter(TokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
+    }
+
+    @Override
+    public Mono<Authentication> apply(ServerWebExchange serverWebExchange) {
+        return Mono.justOrEmpty(serverWebExchange)
+                .map(SecurityUtils::getTokenFromRequest)
+                .filter(Objects::nonNull)
+                .filter(matchBearerLength)
+                .map(isolateBearerValue)
+                .filter(token -> !StringUtils.isEmpty(token))
+                .map(tokenProvider::getAuthentication)
+                .filter(Objects::nonNull);
     }
 }
