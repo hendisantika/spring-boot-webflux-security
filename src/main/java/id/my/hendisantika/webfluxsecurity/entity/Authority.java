@@ -2,6 +2,7 @@ package id.my.hendisantika.webfluxsecurity.entity;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,6 +21,7 @@ import java.util.Objects;
  * To change this template use File | Settings | File Templates.
  */
 @Document(collection = "authority")
+@Data
 public class Authority implements Serializable, GrantedAuthority {
 
     private static final long serialVersionUID = 1L;
