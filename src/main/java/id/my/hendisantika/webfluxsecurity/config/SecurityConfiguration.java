@@ -5,6 +5,7 @@ import id.my.hendisantika.webfluxsecurity.exception.UnauthorizedAuthenticationEn
 import id.my.hendisantika.webfluxsecurity.security.ReactiveUserDetailsServiceImpl;
 import id.my.hendisantika.webfluxsecurity.security.TokenAuthenticationConverter;
 import id.my.hendisantika.webfluxsecurity.security.jwt.JWTHeadersExchangeMatcher;
+import id.my.hendisantika.webfluxsecurity.security.jwt.JWTReactiveAuthenticationManager;
 import id.my.hendisantika.webfluxsecurity.security.jwt.TokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -83,5 +84,11 @@ public class SecurityConfiguration {
         authenticationWebFilter.setRequiresAuthenticationMatcher(new JWTHeadersExchangeMatcher());
         authenticationWebFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
         return authenticationWebFilter;
+    }
+
+    @Bean
+    public JWTReactiveAuthenticationManager repositoryReactiveAuthenticationManager() {
+        JWTReactiveAuthenticationManager repositoryReactiveAuthenticationManager = new JWTReactiveAuthenticationManager(reactiveUserDetailsService, passwordEncoder());
+        return repositoryReactiveAuthenticationManager;
     }
 }
