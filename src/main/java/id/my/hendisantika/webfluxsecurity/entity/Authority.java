@@ -20,8 +20,8 @@ import java.util.Objects;
  * Time: 11.38
  * To change this template use File | Settings | File Templates.
  */
-@Document(collection = "authority")
 @Data
+@Document(collection = "authority")
 public class Authority implements Serializable, GrantedAuthority {
 
     private static final long serialVersionUID = 1L;
