@@ -1,9 +1,11 @@
 package id.my.hendisantika.webfluxsecurity.security.jwt;
 
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
@@ -28,4 +30,11 @@ public class TokenProvider {
     private String secretKey;
 
     private long tokenValidityInMilliseconds;
+
+    @PostConstruct
+    public void init() {
+        this.secretKey = encoder.encodeToString(SALT_KEY.getBytes(StandardCharsets.UTF_8));
+        this.tokenValidityInMilliseconds =
+                1000 * TOKEN_VALIDITY;
+    }
 }
