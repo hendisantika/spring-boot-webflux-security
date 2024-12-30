@@ -1,7 +1,6 @@
 package id.my.hendisantika.webfluxsecurity.config.jackson;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -9,6 +8,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import static com.fasterxml.jackson.core.JsonToken.START_ARRAY;
 
 /**
  * Created by IntelliJ IDEA.
@@ -26,11 +27,18 @@ public class LocalDateDeserializer extends JsonDeserializer<LocalDate> {
 
     @Override
     public LocalDate deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        switch (parser.getCurrentToken()) {
-            case VALUE_STRING:
-                String rawDate = parser.getText();
-                return FORMATTER.parse(rawDate, LocalDate::from);
+        if (parser.getCurrentToken() == JsonToken.VALUE_STRING) {
+            String rawDate = parser.getText();
+            try {
+                return LocalDate.parse(rawDate, FORMATTER);
+            } catch (Exception e) {
+                throw context.weirdStringException(rawDate, LocalDate.class,
+                        "Failed to parse date with format " + FORMATTER);
+            }
         }
-        throw context.wrongTokenException(parser, JsonToken.START_ARRAY, "Expected string.");
+
+        // Handle unexpected token
+        throw context.wrongTokenException(parser, LocalDate.class, START_ARRAY,
+                "Expected a string for LocalDate deserialization.");
     }
 }

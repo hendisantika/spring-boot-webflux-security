@@ -23,10 +23,10 @@ import java.util.Set;
  * Time: 11.39
  * To change this template use File | Settings | File Templates.
  */
+@Data
 @Document(collection = "user")
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 

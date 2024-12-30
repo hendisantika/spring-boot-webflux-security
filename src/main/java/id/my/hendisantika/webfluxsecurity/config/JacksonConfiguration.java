@@ -3,10 +3,10 @@ package id.my.hendisantika.webfluxsecurity.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import id.my.hendisantika.webfluxsecurity.config.jackson.LocalDateDeserializer;
+import id.my.hendisantika.webfluxsecurity.config.jackson.LocalDateSerializer;
+import id.my.hendisantika.webfluxsecurity.config.jackson.LocalDateTimeDeserializer;
+import id.my.hendisantika.webfluxsecurity.config.jackson.LocalDateTimeSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
@@ -30,7 +30,6 @@ import java.time.LocalDateTime;
 public class JacksonConfiguration {
     @Bean
     Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
-
         return new Jackson2ObjectMapperBuilder()
                 .serializationInclusion(JsonInclude.Include.NON_EMPTY)
                 .featuresToDisable(SerializationFeature.WRITE_NULL_MAP_VALUES)

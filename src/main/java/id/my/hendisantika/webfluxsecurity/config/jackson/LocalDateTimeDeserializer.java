@@ -1,7 +1,6 @@
 package id.my.hendisantika.webfluxsecurity.config.jackson;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -31,6 +30,6 @@ public class LocalDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {
                 String rawDate = parser.getText();
                 return FORMATTER.parse(rawDate, LocalDateTime::from);
         }
-        throw context.wrongTokenException(parser, JsonToken.START_ARRAY, "Expected string.");
+        throw context.wrongTokenException(parser, LocalDateTime.class, JsonToken.START_ARRAY, "Expected string.");
     }
 }

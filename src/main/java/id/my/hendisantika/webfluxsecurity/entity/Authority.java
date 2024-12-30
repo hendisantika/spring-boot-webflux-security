@@ -2,7 +2,6 @@ package id.my.hendisantika.webfluxsecurity.entity;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,7 +19,6 @@ import java.util.Objects;
  * Time: 11.38
  * To change this template use File | Settings | File Templates.
  */
-@Data
 @Document(collection = "authority")
 public class Authority implements Serializable, GrantedAuthority {
 
@@ -30,6 +28,14 @@ public class Authority implements Serializable, GrantedAuthority {
     @Size(max = 50)
     @Id
     private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @Override
     public boolean equals(Object o) {
