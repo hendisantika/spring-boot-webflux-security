@@ -50,33 +50,54 @@ public class SecurityConfiguration {
         this.tokenProvider = tokenProvider;
     }
 
+    //    @Bean
+//    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, UnauthorizedAuthenticationEntryPoint entryPoint) {
+//        http.httpBasic().disable()
+//                .formLogin().disable()
+//                .csrf().disable()
+//                .logout().disable();
+//
+//        http
+//                .exceptionHandling()
+//                .authenticationEntryPoint(entryPoint)
+//                .and()
+//                .authorizeExchange()
+//                .matchers(EndpointRequest.to("health", "info"))
+//                .permitAll()
+//                .and()
+//                .authorizeExchange()
+//                .pathMatchers(HttpMethod.OPTIONS)
+//                .permitAll()
+//                .and()
+//                .authorizeExchange()
+//                .matchers(EndpointRequest.toAnyEndpoint())
+//                .hasAuthority(AuthoritiesConstants.ADMIN)
+//                .and()
+//                .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
+//                .authorizeExchange()
+//                .pathMatchers(AUTH_WHITELIST).permitAll()
+//                .anyExchange().authenticated();
+//
+//        return http.build();
+//    }
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, UnauthorizedAuthenticationEntryPoint entryPoint) {
-        http.httpBasic().disable()
-                .formLogin().disable()
-                .csrf().disable()
-                .logout().disable();
+        http.securityContextRepository(new WebSessionServerSecurityContextRepository())
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .logout(ServerHttpSecurity.LogoutSpec::disable);
 
         http
-                .exceptionHandling()
-                .authenticationEntryPoint(entryPoint)
-                .and()
-                .authorizeExchange()
-                .matchers(EndpointRequest.to("health", "info"))
-                .permitAll()
-                .and()
-                .authorizeExchange()
-                .pathMatchers(HttpMethod.OPTIONS)
-                .permitAll()
-                .and()
-                .authorizeExchange()
-                .matchers(EndpointRequest.toAnyEndpoint())
-                .hasAuthority(AuthoritiesConstants.ADMIN)
-                .and()
-                .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
-                .authorizeExchange()
-                .pathMatchers(AUTH_WHITELIST).permitAll()
-                .anyExchange().authenticated();
+                .exceptionHandling(exceptionHandlingSpec -> exceptionHandlingSpec
+                        .authenticationEntryPoint(entryPoint))
+                .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
+                        .matchers(EndpointRequest.to("health", "info")).permitAll()
+                        .pathMatchers(HttpMethod.OPTIONS).permitAll()
+                        .matchers(EndpointRequest.toAnyEndpoint()).hasAuthority(AuthoritiesConstants.ADMIN)
+                        .pathMatchers(AUTH_WHITELIST).permitAll()
+                        .anyExchange().authenticated())
+                .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION);
 
         return http.build();
     }
