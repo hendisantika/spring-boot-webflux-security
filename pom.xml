@@ -15,7 +15,7 @@
     <description>spring-boot-webflux-security</description>
     <properties>
         <java.version>23</java.version>
-        <jsonwebtoken.version>0.12.7</jsonwebtoken.version>
+        <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
         <lombok.version>1.18.38</lombok.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven.compiler.proc>full</maven.compiler.proc>
