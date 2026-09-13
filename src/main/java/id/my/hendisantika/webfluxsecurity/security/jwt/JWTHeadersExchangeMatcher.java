@@ -23,7 +23,7 @@ public class JWTHeadersExchangeMatcher implements ServerWebExchangeMatcher {
 
         /* Check for header "Authorization" */
         return request.map(ServerHttpRequest::getHeaders)
-                .filter(h -> h.containsKey(HttpHeaders.AUTHORIZATION))
+                .filter(h -> h.containsHeader(HttpHeaders.AUTHORIZATION))
                 .flatMap($ -> MatchResult.match())
                 .switchIfEmpty(MatchResult.notMatch());
     }
