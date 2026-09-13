@@ -4,9 +4,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +19,11 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -43,17 +45,25 @@ public class TokenProvider {
     private static final int TOKEN_VALIDITY = 86400; // Value in second
     private static final String AUTHORITIES_KEY = "auth";
     private final Logger log = LoggerFactory.getLogger(TokenProvider.class);
-    private final Base64.Encoder encoder = Base64.getEncoder();
 
-    private String secretKey;
+    private SecretKey secretKey;
 
     private long tokenValidityInMilliseconds;
 
     @PostConstruct
     public void init() {
-        this.secretKey = encoder.encodeToString(SALT_KEY.getBytes(StandardCharsets.UTF_8));
+        // HS512 requires a key of at least 512 bits (RFC 7518), so derive one from the salt.
+        this.secretKey = Keys.hmacShaKeyFor(sha512(SALT_KEY));
         this.tokenValidityInMilliseconds =
-                1000 * TOKEN_VALIDITY;
+                1000L * TOKEN_VALIDITY;
+    }
+
+    private byte[] sha512(String value) {
+        try {
+            return MessageDigest.getInstance("SHA-512").digest(value.getBytes(StandardCharsets.UTF_8));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-512 is required to sign JWT tokens", e);
+        }
     }
 
     public String createToken(Authentication authentication) {
@@ -65,10 +75,10 @@ public class TokenProvider {
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(authentication.getName())
+                .subject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
-                .signWith(SignatureAlgorithm.HS512, secretKey)
-                .setExpiration(validity)
+                .expiration(validity)
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -77,10 +87,10 @@ public class TokenProvider {
             throw new BadCredentialsException("Invalid token");
         }
         Claims claims = Jwts.parser()
-                .setSigningKey(secretKey)
+                .verifyWith(secretKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
 
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
@@ -95,9 +105,9 @@ public class TokenProvider {
     public boolean validateToken(String authToken) {
         try {
             Jwts.parser()
-                    .setSigningKey(secretKey)
+                    .verifyWith(secretKey)
                     .build()
-                    .parseClaimsJws(authToken);
+                    .parseSignedClaims(authToken);
             return true;
         } catch (SignatureException e) {
             log.info("Invalid JWT signature.");
