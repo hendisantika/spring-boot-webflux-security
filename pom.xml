@@ -14,7 +14,7 @@
     <name>spring-boot-webflux-security</name>
     <description>spring-boot-webflux-security</description>
     <properties>
-        <java.version>23</java.version>
+        <java.version>25</java.version>
         <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
         <lombok.version>1.18.48</lombok.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
