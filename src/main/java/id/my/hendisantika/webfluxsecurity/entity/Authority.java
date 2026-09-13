@@ -52,6 +52,11 @@ public class Authority implements Serializable, GrantedAuthority {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
+    }
+
+    @Override
     public String getAuthority() {
         return name;
     }
