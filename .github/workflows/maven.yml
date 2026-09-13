@@ -19,6 +19,11 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # The dependency submission step below writes a dependency snapshot, which the
+    # repository's read-only default token cannot do.
+    permissions:
+      contents: write
+
     services:
       mongodb:
         image: mongo:8.0.1
